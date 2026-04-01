@@ -31,7 +31,6 @@ export const useLocation = () => {
                 longitude: coords.longitude,
             });
         } catch (error) {
-            console.error('Error getting location:', error);
             setErrorMessage('Unable to get your current location right now.');
         } finally {
             setIsLoading(false);

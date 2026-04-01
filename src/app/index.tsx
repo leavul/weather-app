@@ -1,6 +1,9 @@
+import { Colors, Radius, Spacing } from "@/src/constants/theme";
 import { useLocation } from "@/src/hooks/useLocation";
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import AppButton from "../components/ui/app-button";
 
 export default function Index() {
   const {
@@ -11,31 +14,41 @@ export default function Index() {
   } = useLocation();
 
   useEffect(() => {
-    console.log('Requesting location...');
     getCurrentLocation();
   }, [getCurrentLocation]);
 
+  const displayErrorAlert = (message: string) => {
+    Alert.alert(message);
+  }
+
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: '#9eb8ea' }]}>
-        <ActivityIndicator size="large" color="#2563eb" />
+      <View style={[styles.container]}>
+        <ActivityIndicator size="large" color={Colors.text} />
         <Text style={styles.statusText}>Getting your location...</Text>
       </View>
     );
   }
 
   if (errorMessage) {
+    displayErrorAlert(errorMessage);
+
     return (
       <View style={styles.container}>
+        <View style={styles.locationCircler}>
+          <EvilIcons name="location" size={64} color={Colors.muted} />
+        </View>
+
         <Text style={styles.statusText}>{errorMessage}</Text>
+
+        <AppButton style={styles.getLocationButton}>Retry</AppButton>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.coordinateText}>Latitude: {location.latitude}</Text>
-      <Text style={styles.coordinateText}>Longitude: {location.longitude}</Text>
+      {/* App ui */}
     </View>
   );
 }
@@ -45,18 +58,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
-    gap: 12,
+    backgroundColor: Colors.background,
+    padding: Spacing.four,
+  },
+
+  locationCircler: {
+    width: 128,
+    height: 128,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   statusText: {
+    marginTop: Spacing.four,
     fontSize: 16,
+    color: Colors.text,
     textAlign: "center",
-    color: "#1f2937",
   },
-  
-  coordinateText: {
-    fontSize: 18,
-    color: "#111827",
+
+  getLocationButton: {
+    marginTop: Spacing.five
   },
 });
