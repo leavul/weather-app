@@ -1,11 +1,13 @@
 import * as Location from 'expo-location';
 import { useCallback, useState } from 'react';
 
-type PermissionStatus = {
-    isLoading: boolean
-    errorMessage: string | null
-    canAskForPermissionAgain: boolean | null
-}
+type LocationStatus = "idle" | "loading" | "success" | "error";
+
+type PermissionState = {
+    status: LocationStatus;
+    errorMessage: string | null;
+    canAskForPermissionAgain: boolean | null;
+};
 
 type LocationState = {
     latitude: number | null;
@@ -13,8 +15,8 @@ type LocationState = {
 };
 
 export const useLocation = () => {
-    const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>({
-        isLoading: false,
+    const [permissionStatus, setPermissionStatus] = useState<PermissionState>({
+        status: 'idle',
         errorMessage: null,
         canAskForPermissionAgain: null
     });
@@ -24,17 +26,26 @@ export const useLocation = () => {
     });
 
     const getCurrentLocation = useCallback(async () => {
-        setPermissionStatus((currentState) => {
-            return { ...currentState, isLoading: true, errorMessage: null }
+        setPermissionStatus({
+            status: 'loading',
+            errorMessage: null,
+            canAskForPermissionAgain: null
+        });
+
+        setLocation({
+            latitude: null,
+            longitude: null
         })
 
         try {
             const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 const message = 'Permission to access location was denied';
-                setPermissionStatus((currentState) => {
-                    return { ...currentState, canAskForPermissionAgain: canAskAgain, errorMessage: message }
-                })
+                setPermissionStatus({
+                    status: 'error',
+                    canAskForPermissionAgain: canAskAgain,
+                    errorMessage: message
+                });
                 return;
             }
 
@@ -43,15 +54,23 @@ export const useLocation = () => {
                 latitude: coords.latitude,
                 longitude: coords.longitude,
             });
+
+            setPermissionStatus({
+                status: 'success',
+                canAskForPermissionAgain: canAskAgain,
+                errorMessage: null
+            });
+
         } catch (error) {
-            const message = 'Unable to get your current location right now.';
-            setPermissionStatus((currentState) => {
-                return { ...currentState, canAskForPermissionAgain: true, errorMessage: message }
-            })
-        } finally {
-            setPermissionStatus((currentState) => {
-                return { ...currentState, isLoading: false }
-            })
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to get your current location right now.';
+            setPermissionStatus({
+                status: 'error',
+                canAskForPermissionAgain: true,
+                errorMessage: message
+            });
         }
     }, []);
 

@@ -1,6 +1,8 @@
 import AppButton from "@/src/components/ui/app-button";
-import { Colors, Radius, Spacing } from "@/src/constants/theme";
+import WeatherInformationComponent from "@/src/components/weather-information-component";
+import { Colors, Spacing } from "@/src/constants/theme";
 import { useLocation } from "@/src/hooks/useLocation";
+import { StatusStyles } from "@/src/styles/status-styles";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect } from "react";
@@ -32,41 +34,39 @@ export default function Index() {
     }
   };
 
-  if (permissionStatus.isLoading) {
+  if (permissionStatus.status === 'loading') {
     return (
       <View style={[styles.container]}>
         <ActivityIndicator size="large" color={Colors.text} />
-        <Text style={styles.statusText}>Getting your location...</Text>
+        <Text style={StatusStyles.statusText}>Getting your location...</Text>
       </View>
     );
   }
 
-  if (permissionStatus.errorMessage) {
+  if (permissionStatus.status === 'error') {
     const canRetry = permissionStatus.canAskForPermissionAgain === true;
     return (
       <View style={styles.container}>
         {
           canRetry ? (
             <>
-              <View style={styles.permissionIconContainer}>
+              <View style={StatusStyles.errorIconContainer}>
                 <EvilIcons name="location" size={64} color={Colors.success} />
               </View>
 
-              <Text style={styles.statusText}>Location permission is required. Tap Retry button for try again.</Text>
+              <Text style={StatusStyles.statusText}>Location permission is required. Tap Retry button for try again.</Text>
 
-              <AppButton style={styles.permissionButton} onPress={getCurrentLocation}>Retry</AppButton>
+              <AppButton style={StatusStyles.statusButton} onPress={getCurrentLocation}>Retry</AppButton>
             </>
           ) : (
             <>
-              <View style={styles.permissionIconContainer}>
+              <View style={StatusStyles.errorIconContainer}>
                 <Ionicons name="warning" size={64} color={Colors.warning} />
               </View>
 
-              <Text style={styles.statusText}>
-                Location permission is required. Please enable it in your device settings to continue.
-              </Text>
+              <Text style={StatusStyles.statusText}>Location permission is required. Please enable it in your device settings to continue.</Text>
 
-              <AppButton style={styles.permissionButton} onPress={handleOpenAppSettings}>Open Settings</AppButton>
+              <AppButton style={StatusStyles.statusButton} onPress={handleOpenAppSettings}>Open Settings</AppButton>
             </>
           )
         }
@@ -74,11 +74,21 @@ export default function Index() {
     )
   }
 
+  const latitude = location.latitude;
+  const longitude = location.longitude;
+  if (permissionStatus.status === 'success' && latitude !== null && longitude !== null) {
+    return <WeatherInformationComponent location={{ latitude, longitude }} />
+  }
+
   return (
     <View style={styles.container}>
-      {/* App ui */}
+      <ActivityIndicator size="large" color={Colors.text} />
+
+      <Text style={StatusStyles.statusText}>Preparing your location...</Text>
     </View>
   );
+
+
 }
 
 const styles = StyleSheet.create({
@@ -88,25 +98,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.background,
     padding: Spacing.four,
-  },
-
-  permissionIconContainer: {
-    width: 128,
-    height: 128,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-
-  statusText: {
-    marginTop: Spacing.four,
-    fontSize: 16,
-    color: Colors.text,
-    textAlign: "center",
-  },
-
-  permissionButton: {
-    marginTop: Spacing.five
   },
 });
