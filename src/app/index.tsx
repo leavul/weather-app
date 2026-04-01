@@ -1,15 +1,15 @@
+import AppButton from "@/src/components/ui/app-button";
 import { Colors, Radius, Spacing } from "@/src/constants/theme";
 import { useLocation } from "@/src/hooks/useLocation";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
-import AppButton from "../components/ui/app-button";
+import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
   const {
+    permissionStatus,
     getCurrentLocation,
-    isLoading,
-    errorMessage,
     location
   } = useLocation();
 
@@ -17,11 +17,22 @@ export default function Index() {
     getCurrentLocation();
   }, [getCurrentLocation]);
 
-  const displayErrorAlert = (message: string) => {
-    Alert.alert(message);
-  }
+  useEffect(() => {
+    if (!permissionStatus.errorMessage) return;
 
-  if (isLoading) {
+    Alert.alert(permissionStatus.errorMessage);
+  }, [permissionStatus.errorMessage]);
+
+  const handleOpenAppSettings = async () => {
+    try {
+      // TODO: Verify on Android and iOS dev builds that this opens the app-specific settings screen.
+      await Linking.openSettings();
+    } catch {
+      Alert.alert("Unable to open settings right now.");
+    }
+  };
+
+  if (permissionStatus.isLoading) {
     return (
       <View style={[styles.container]}>
         <ActivityIndicator size="large" color={Colors.text} />
@@ -30,20 +41,37 @@ export default function Index() {
     );
   }
 
-  if (errorMessage) {
-    displayErrorAlert(errorMessage);
-
+  if (permissionStatus.errorMessage) {
+    const canRetry = permissionStatus.canAskForPermissionAgain === true;
     return (
       <View style={styles.container}>
-        <View style={styles.locationCircler}>
-          <EvilIcons name="location" size={64} color={Colors.muted} />
-        </View>
+        {
+          canRetry ? (
+            <>
+              <View style={styles.permissionIconContainer}>
+                <EvilIcons name="location" size={64} color={Colors.success} />
+              </View>
 
-        <Text style={styles.statusText}>{errorMessage}</Text>
+              <Text style={styles.statusText}>Location permission is required. Tap Retry button for try again.</Text>
 
-        <AppButton style={styles.getLocationButton}>Retry</AppButton>
+              <AppButton style={styles.permissionButton} onPress={getCurrentLocation}>Retry</AppButton>
+            </>
+          ) : (
+            <>
+              <View style={styles.permissionIconContainer}>
+                <Ionicons name="warning" size={64} color={Colors.warning} />
+              </View>
+
+              <Text style={styles.statusText}>
+                Location permission is required. Please enable it in your device settings to continue.
+              </Text>
+
+              <AppButton style={styles.permissionButton} onPress={handleOpenAppSettings}>Open Settings</AppButton>
+            </>
+          )
+        }
       </View>
-    );
+    )
   }
 
   return (
@@ -62,7 +90,7 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
   },
 
-  locationCircler: {
+  permissionIconContainer: {
     width: 128,
     height: 128,
     borderRadius: Radius.full,
@@ -78,7 +106,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  getLocationButton: {
+  permissionButton: {
     marginTop: Spacing.five
   },
 });

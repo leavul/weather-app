@@ -1,27 +1,40 @@
 import * as Location from 'expo-location';
 import { useCallback, useState } from 'react';
 
+type PermissionStatus = {
+    isLoading: boolean
+    errorMessage: string | null
+    canAskForPermissionAgain: boolean | null
+}
+
 type LocationState = {
     latitude: number | null;
     longitude: number | null;
 };
 
 export const useLocation = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>({
+        isLoading: false,
+        errorMessage: null,
+        canAskForPermissionAgain: null
+    });
     const [location, setLocation] = useState<LocationState>({
         latitude: null,
         longitude: null,
     });
 
     const getCurrentLocation = useCallback(async () => {
-        setIsLoading(true);
-        setErrorMessage('');
+        setPermissionStatus((currentState) => {
+            return { ...currentState, isLoading: true, errorMessage: null }
+        })
 
         try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
+            const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                setErrorMessage('Permission to access location was denied');
+                const message = 'Permission to access location was denied';
+                setPermissionStatus((currentState) => {
+                    return { ...currentState, canAskForPermissionAgain: canAskAgain, errorMessage: message }
+                })
                 return;
             }
 
@@ -31,16 +44,20 @@ export const useLocation = () => {
                 longitude: coords.longitude,
             });
         } catch (error) {
-            setErrorMessage('Unable to get your current location right now.');
+            const message = 'Unable to get your current location right now.';
+            setPermissionStatus((currentState) => {
+                return { ...currentState, canAskForPermissionAgain: true, errorMessage: message }
+            })
         } finally {
-            setIsLoading(false);
+            setPermissionStatus((currentState) => {
+                return { ...currentState, isLoading: false }
+            })
         }
     }, []);
 
     return {
-        location,
-        errorMessage,
-        isLoading,
+        permissionStatus,
         getCurrentLocation,
+        location
     };
 };
