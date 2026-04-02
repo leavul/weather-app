@@ -17,6 +17,13 @@ A simple weather mobile app built with React Native and Expo. Weatherlen gets th
 
 ## Images
 
+### App Icons (iOS & Android)
+<p align="center">
+  <img width="375" alt="App Icon IOS" src="https://github.com/user-attachments/assets/76f46219-d081-4866-809f-762be14d079f" />
+  <img width="265" alt="App Icon Android" src="https://github.com/user-attachments/assets/5d73277e-b12b-44ea-a66c-9c6edf904146" />
+</p>
+
+### App Screens (In-App)
 <p align="center">
   <img width="250" alt="Loading State" src="https://github.com/user-attachments/assets/02a41aff-9b42-4878-a27f-458cbe18f6b8" />
   <img width="250" alt="Error State" src="https://github.com/user-attachments/assets/d68b264c-6cf2-433b-8403-838571c2a6c0" />
