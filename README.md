@@ -1,50 +1,44 @@
-# Welcome to your Expo app 👋
+# Weatherlen
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple weather mobile app built with React Native and Expo. Weatherlen gets the user's current location and shows the current weather with a clean interface and animated weather states.
 
-## Get started
+## Features
+
+- Request location permission
+- Get current weather based on device location
+- Display city name, weather animation image / condition, and temperature
+
+## Built With
+
+- Expo
+- TypeScript
+- Lottie React Native
+- OpenWeather API
+
+## Images
+
+<p align="center">
+  <img width="250" alt="Loading State" src="https://github.com/user-attachments/assets/02a41aff-9b42-4878-a27f-458cbe18f6b8" />
+  <img width="250" alt="Error State" src="https://github.com/user-attachments/assets/d68b264c-6cf2-433b-8403-838571c2a6c0" />
+  <img width="250" alt="Weather Status View" src="https://github.com/user-attachments/assets/53e25ff7-3d32-46bb-94c7-18c35bc0c288" />
+</p>
+
+## Run Locally
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Add your API key
 
-## Learn more
+```bash
+EXPO_PUBLIC_API_KEY=your_openweather_api_key
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Start the app
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start
+```
