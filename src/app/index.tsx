@@ -1,12 +1,13 @@
 import AppButton from "@/src/components/ui/app-button";
-import WeatherInformationComponent from "@/src/components/weather-information-component";
+import AppLoading from "@/src/components/ui/app-loading";
+import AppLottie from "@/src/components/ui/app-lottie";
+import WeatherInformation from "@/src/components/weather-information";
+import { Animations } from "@/src/constants/animations";
 import { Colors, Spacing } from "@/src/constants/theme";
 import { useLocation } from "@/src/hooks/useLocation";
 import { StatusStyles } from "@/src/styles/status-styles";
-import EvilIcons from '@expo/vector-icons/EvilIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect } from "react";
-import { ActivityIndicator, Alert, Linking, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
   const {
@@ -36,9 +37,8 @@ export default function Index() {
 
   if (permissionStatus.status === 'loading') {
     return (
-      <View style={[styles.container]}>
-        <ActivityIndicator size="large" color={Colors.text} />
-        <Text style={StatusStyles.statusText}>Getting your location...</Text>
+      <View style={styles.container}>
+        <AppLoading title="Getting your location..." />
       </View>
     );
   }
@@ -50,9 +50,7 @@ export default function Index() {
         {
           canRetry ? (
             <>
-              <View style={StatusStyles.errorIconContainer}>
-                <EvilIcons name="location" size={64} color={Colors.success} />
-              </View>
+              <AppLottie source={Animations.error} />
 
               <Text style={StatusStyles.statusText}>Location permission is required. Tap Retry button for try again.</Text>
 
@@ -60,9 +58,7 @@ export default function Index() {
             </>
           ) : (
             <>
-              <View style={StatusStyles.errorIconContainer}>
-                <Ionicons name="warning" size={64} color={Colors.warning} />
-              </View>
+              <AppLottie source={Animations.error} />
 
               <Text style={StatusStyles.statusText}>Location permission is required. Please enable it in your device settings to continue.</Text>
 
@@ -77,18 +73,14 @@ export default function Index() {
   const latitude = location.latitude;
   const longitude = location.longitude;
   if (permissionStatus.status === 'success' && latitude !== null && longitude !== null) {
-    return <WeatherInformationComponent location={{ latitude, longitude }} />
+    return <WeatherInformation location={{ latitude, longitude }} />
   }
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={Colors.text} />
-
-      <Text style={StatusStyles.statusText}>Preparing your location...</Text>
+      <AppLoading title="Preparing your location..." />
     </View>
   );
-
-
 }
 
 const styles = StyleSheet.create({

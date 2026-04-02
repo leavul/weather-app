@@ -1,11 +1,13 @@
 import { fetchWeather } from '@/src/api/weatherApi';
 import AppButton from '@/src/components/ui/app-button';
+import AppLoading from '@/src/components/ui/app-loading';
+import AppLottie from '@/src/components/ui/app-lottie';
+import { Animations } from '@/src/constants/animations';
 import { Colors, Spacing } from '@/src/constants/theme';
 import { StatusStyles } from '@/src/styles/status-styles';
 import { FormattedWeather } from '@/src/types/weather';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 const cannotGetUserLocationMessage = 'We were unable to retrieve weather information for your location. Please try again.';
 
@@ -17,24 +19,20 @@ type WeatherState = {
     errorMessage: string | null;
 }
 
-type WeatherInformationComponentProps = {
+type WeatherInformationProps = {
     location: {
         latitude: number;
         longitude: number;
     }
 }
-export default function WeatherInformationComponent({ location }: WeatherInformationComponentProps) {
+export default function WeatherInformation({ location }: WeatherInformationProps) {
     const [weatherState, setWeatherState] = useState<WeatherState>({
         status: 'idle',
         errorMessage: null,
         weatherInformation: null
     });
 
-    useEffect(() => {
-        handleFetchWeather();
-    }, [location.latitude, location.longitude])
-
-    const handleFetchWeather = async () => {
+    const handleFetchWeather = useCallback(async () => {
         setWeatherState({
             status: "loading",
             weatherInformation: null,
@@ -64,23 +62,24 @@ export default function WeatherInformationComponent({ location }: WeatherInforma
                 errorMessage: message,
             });
         }
-    }
+    }, [location.latitude, location.longitude]);
+
+    useEffect(() => {
+        handleFetchWeather();
+    }, [handleFetchWeather]);
 
     if (weatherState.status === "loading") {
         return (
-            <View style={[styles.container]}>
-                <ActivityIndicator size="large" color={Colors.text} />
-                <Text style={StatusStyles.statusText}>Getting your location Weather...</Text>
+            <View style={styles.container}>
+                <AppLoading title='Getting your location Weather...' />
             </View>
-        )
+        );
     }
 
     if (weatherState.status === "error") {
         return (
             <View style={styles.container}>
-                <View style={StatusStyles.errorIconContainer}>
-                    <MaterialCommunityIcons name="weather-cloudy-alert" size={64} color={Colors.warning} />
-                </View>
+                <AppLottie source={Animations.error} />
 
                 <Text style={StatusStyles.statusText}>{weatherState.errorMessage}</Text>
 
@@ -103,11 +102,9 @@ export default function WeatherInformationComponent({ location }: WeatherInforma
 
     return (
         <View style={styles.container}>
-            <ActivityIndicator size="large" color={Colors.text} />
-
-            <Text style={StatusStyles.statusText}>Preparing weather information...</Text>
+            <AppLoading title='Preparing weather information...' />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
