@@ -1,6 +1,7 @@
 import { FormattedWeather, WeatherApiResponse } from "@/src/types/weather";
 
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
+// TODO: Move this API call behind a backend/serverless route so the weather API key is not exposed in the client bundle.
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 function isWeatherApiResponse(data: unknown): data is WeatherApiResponse {
@@ -15,6 +16,8 @@ function isWeatherApiResponse(data: unknown): data is WeatherApiResponse {
         weatherData.weather.length > 0 &&
         typeof weatherData.weather[0]?.main === "string" &&
         typeof weatherData.main?.temp === "number" &&
+        typeof weatherData.sys?.sunrise === "number" &&
+        typeof weatherData.sys?.sunset === "number" &&
         typeof weatherData.name === "string"
     );
 }
@@ -30,7 +33,7 @@ export async function fetchWeather({
         throw new Error("Missing weather API key.");
     }
 
-    const apiUrl = `${BASE_URL}/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
+    const apiUrl = `${BASE_URL}/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
 
     let response: Response;
 
@@ -52,8 +55,10 @@ export async function fetchWeather({
     }
 
     return {
-        weather: data.weather[0].main,
-        temp: data.main.temp,
+        weatherCondition: data.weather[0].main,
+        temperature: data.main.temp,
         city: data.name,
+        sunrise: data.sys.sunrise * 1000,
+        sunset: data.sys.sunset * 1000,
     };
 }

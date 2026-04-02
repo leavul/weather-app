@@ -1,7 +1,9 @@
 export type FormattedWeather = {
-    weather: string,
-    temp: number,
+    weatherCondition: string,
+    temperature: number,
     city: string,
+    sunrise: number,
+    sunset: number,
 };
 
 export type WeatherApiResponse = {
@@ -10,6 +12,10 @@ export type WeatherApiResponse = {
     }[];
     main: {
         temp: number;
+    };
+    sys: {
+        sunrise: number;
+        sunset: number;
     };
     name: string;
 };
