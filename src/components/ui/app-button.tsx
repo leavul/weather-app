@@ -1,5 +1,6 @@
 import { Colors, Radius, Spacing } from '@/src/constants/theme'
-import { Pressable, PressableProps, StyleSheet, Text } from 'react-native'
+import { Pressable, PressableProps, StyleSheet } from 'react-native'
+import AppText from './app-text'
 
 export default function AppButton({ style, children, ...otherProps }: PressableProps) {
     return (
@@ -12,7 +13,7 @@ export default function AppButton({ style, children, ...otherProps }: PressableP
             {...otherProps}
         >
             {typeof children === 'string' ? (
-                <Text style={styles.textChildren}>{children}</Text>
+                <AppText style={styles.textChildren}>{children}</AppText>
             ) : (
                 children
             )}
@@ -34,7 +35,8 @@ const styles = StyleSheet.create({
     },
 
     textChildren: {
-        fontSize: 18,
+        fontSize: 22,
+        letterSpacing: 1.5,
         color: Colors.text,
         textAlign: 'center'
     }

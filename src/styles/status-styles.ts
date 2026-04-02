@@ -13,7 +13,8 @@ export const StatusStyles = StyleSheet.create({
 
     statusText: {
         marginTop: Spacing.four,
-        fontSize: 16,
+        fontSize: 20,
+        letterSpacing: 1,
         color: Colors.text,
         textAlign: "center",
     },

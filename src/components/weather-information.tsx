@@ -2,15 +2,16 @@ import { fetchWeather } from '@/src/api/weatherApi';
 import AppButton from '@/src/components/ui/app-button';
 import AppLoading from '@/src/components/ui/app-loading';
 import AppLottie from '@/src/components/ui/app-lottie';
+import AppText from '@/src/components/ui/app-text';
 import { Animations } from '@/src/constants/animations';
 import { Colors, Spacing } from '@/src/constants/theme';
 import { StatusStyles } from '@/src/styles/status-styles';
 import { FormattedWeather } from '@/src/types/weather';
+import { getWeatherAnimation } from '@/src/utils/get-weather-animation';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getWeatherAnimation } from '../utils/get-weather-animation';
 
 const cannotGetUserWeatherMessage = 'We were unable to retrieve weather information for your location. Please try again.';
 
@@ -84,7 +85,7 @@ export default function WeatherInformation({ location }: WeatherInformationProps
             <View style={styles.container}>
                 <AppLottie source={Animations.error} />
 
-                <Text style={StatusStyles.statusText}>{weatherState.errorMessage}</Text>
+                <AppText style={StatusStyles.statusText}>{weatherState.errorMessage}</AppText>
 
                 <AppButton style={StatusStyles.statusButton} onPress={handleFetchWeather}>Fetch Weather Again</AppButton>
             </View>
@@ -104,14 +105,14 @@ export default function WeatherInformation({ location }: WeatherInformationProps
         return (
             <SafeAreaView style={styles.container}>
                 <FontAwesome6 name="location-dot" size={20} color={Colors.muted} />
-                <Text style={[styles.text, styles.cityNameText]}>{cityName}</Text>
+                <AppText style={[styles.text, styles.cityNameText]}>{cityName}</AppText>
 
                 <View style={styles.weatherConditionContainer}>
                     <AppLottie source={weatherAnimation} />
-                    <Text style={[styles.text, styles.weatherCondition]}>{weatherCondition}</Text>
+                    <AppText style={[styles.text, styles.weatherCondition]}>{weatherCondition}</AppText>
                 </View>
 
-                <Text style={[styles.text, styles.temperatureText]}>{temperature}°</Text>
+                <AppText style={[styles.text, styles.temperatureText]}>{temperature}°</AppText>
             </SafeAreaView>
         )
     }
@@ -129,8 +130,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: Colors.background,
-        paddingVertical: Spacing.six,
-        paddingHorizontal: Spacing.four,
+        padding: Spacing.four,
     },
 
     text: {
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     },
     cityNameText: {
         marginTop: Spacing.two,
-        fontSize: 16,
+        fontSize: 20,
         textTransform: "uppercase",
     },
     weatherConditionContainer: {
@@ -148,9 +148,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     weatherCondition: {
-        fontSize: 24,
+        fontSize: 28,
     },
     temperatureText: {
-        fontSize: 48
+        fontSize: 52
     },
 });
