@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     textChildren: {
         fontSize: 22,
         letterSpacing: 1.5,
-        color: Colors.text,
         textAlign: 'center'
     }
 })

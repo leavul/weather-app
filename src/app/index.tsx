@@ -21,12 +21,6 @@ export default function Index() {
     getCurrentLocation();
   }, [getCurrentLocation]);
 
-  useEffect(() => {
-    if (!permissionStatus.errorMessage) return;
-
-    Alert.alert(permissionStatus.errorMessage);
-  }, [permissionStatus.errorMessage]);
-
   const handleOpenAppSettings = async () => {
     try {
       // TODO: Verify on Android and iOS dev builds that this opens the app-specific settings screen.
