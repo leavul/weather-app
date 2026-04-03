@@ -14,6 +14,7 @@ type LocationState = {
     longitude: number | null;
 };
 
+//TODO: fix Android location not working (likely permission flow issue)
 export const useLocation = () => {
     const [permissionStatus, setPermissionStatus] = useState<PermissionState>({
         status: 'idle',
