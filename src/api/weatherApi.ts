@@ -1,25 +1,10 @@
-import { FormattedWeather, WeatherApiResponse } from "@/src/types/weather";
+import { FormattedWeather, isValidWeatherResponse } from "@/src/types/weather";
 
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
-// TODO: Move this API call behind a backend/serverless route so the weather API key is not exposed in the client bundle.
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
-function isWeatherApiResponse(data: unknown): data is WeatherApiResponse {
-    if (!data || typeof data !== "object") {
-        return false;
-    }
-
-    const weatherData = data as Partial<WeatherApiResponse>;
-
-    return (
-        Array.isArray(weatherData.weather) &&
-        weatherData.weather.length > 0 &&
-        typeof weatherData.weather[0]?.main === "string" &&
-        typeof weatherData.main?.temp === "number" &&
-        typeof weatherData.sys?.sunrise === "number" &&
-        typeof weatherData.sys?.sunset === "number" &&
-        typeof weatherData.name === "string"
-    );
+if (__DEV__ && !API_KEY) {
+    throw new Error("Missing weather API key.");
 }
 
 export async function fetchWeather({
@@ -29,29 +14,51 @@ export async function fetchWeather({
     latitude: number,
     longitude: number
 }): Promise<FormattedWeather> {
-    if (!API_KEY) {
-        throw new Error("Missing weather API key.");
-    }
-
-    const apiUrl = `${BASE_URL}/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
+    const fetchWeatherUrl = `${BASE_URL}/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
 
     let response: Response;
 
-    // TODO: Handle errors (network, API, unknown) and show proper messages to the user
     try {
-        response = await fetch(apiUrl);
+        response = await fetch(fetchWeatherUrl);
     } catch (error) {
+        if (__DEV__) console.error("[fetchWeather] Unexpected fetch error:", error);
+        if (error instanceof TypeError && error.message === "Network request failed") {
+            throw new Error("No internet connection. Please check your network and try again.");
+        }
         throw new Error("Unable to reach weather service.");
     }
 
     if (!response.ok) {
-        throw new Error(`Weather request failed with status ${response.status}.`);
+        if (__DEV__) console.error("[fetchWeather] Bad response:", response.status, response.statusText);
+        switch (response.status) {
+            // 401: invalid or missing API key
+            // 500/503: OpenWeatherMap is down or having issues on their end
+            case 401:
+            case 500:
+            case 503:
+                throw new Error("Weather service is unavailable. Please try again later.");
+            // 404: the coordinates didn't match any known location
+            case 404:
+                throw new Error("Could not find weather for your location.");
+            // 429: free tier rate limit hit
+            case 429:
+                throw new Error("Too many requests. Please wait a moment and try again.");
+            default:
+                throw new Error("Something went wrong. Please try again.");
+        }
     }
 
-    const data: unknown = await response.json();
+    let data: unknown;
+    try {
+        data = await response.json();
+    } catch (error) {
+        if (__DEV__) console.error("[fetchWeather] Failed to parse JSON:", error);
+        throw new Error("Something went wrong. Please try again.");
+    }
 
-    if (!isWeatherApiResponse(data)) {
-        throw new Error("Unexpected weather response shape.");
+    if (!isValidWeatherResponse(data)) {
+        if (__DEV__) console.error("[fetchWeather] Unexpected response shape:", data);
+        throw new Error("Unexpected weather response shape. Please try again.");
     }
 
     return {

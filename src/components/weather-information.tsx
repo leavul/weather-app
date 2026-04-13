@@ -13,8 +13,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const cannotGetUserWeatherMessage = 'We were unable to retrieve weather information for your location. Please try again.';
-
 type WeatherStatus = "idle" | "loading" | "success" | "error";
 
 type WeatherState = {
@@ -58,7 +56,7 @@ export default function WeatherInformation({ location }: WeatherInformationProps
             const message =
                 error instanceof Error
                     ? error.message
-                    : cannotGetUserWeatherMessage;
+                    : 'Something went wrong. Please try again.';
 
             setWeatherState({
                 status: "error",
